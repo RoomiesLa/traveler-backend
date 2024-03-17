@@ -12,6 +12,7 @@ router = DefaultRouter()
 app_name = 'repository'
 
 router.register('projects', views.ProjectViewSet)
+router.register('entries', views.EntryViewSet)
 router.register('github', views.RetrieveInfoFromGithub, basename='github')
 
 urlpatterns = [

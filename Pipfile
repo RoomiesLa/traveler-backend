@@ -20,6 +20,9 @@ authlib = "*"
 mongoengine = "*"
 pymongo = "==3.12.3"
 djangorestframework = "==3.13.1"
+langchain = "*"
+beautifulsoup4 = "*"
+llamaapi = "*"
 
 [dev-packages]
 

@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter ,extend_schema_field
-
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
 
 
 from repository import serializers
@@ -17,6 +18,7 @@ from drf_spectacular.views import (
 )
 
 from repository.models import Project
+from repository.models import Entrys
 
 
 @extend_schema_field(OpenApiTypes.BYTE) 
@@ -72,11 +74,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = serializers.ProjectSerializer
 
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
     
-
+class EntryViewSet(viewsets.ModelViewSet):
+    queryset = Entrys.objects.all()
+    serializer_class = serializers.EntrysSerializer
     
+    @parser_classes([JSONParser])
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-    
+        return super().perform_create(serializer)

@@ -3,6 +3,7 @@ import requests
 
 from rest_framework import serializers
 import requests
+from repository.lang_chain import process_file_info
 
 from repository.models import Entrys, Project
 
@@ -54,26 +55,34 @@ class RetrieveCodeFromGithubSerializer(serializers.Serializer):
 
 class EntrysSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Entrys  # Corregir el modelo a Entrys
+        model = Entrys
         fields = '__all__'
-        read_only_fields = ('user', 'created_at')
-        extra_kwargs = {
-            'name': {'required': True}
-        }
-
-        
-class ProjectSerializer(serializers.ModelSerializer):
-    entries = EntrysSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Project
-        fields = '__all__'
-        read_only_fields = ('user', 'created_at')
         extra_kwargs = {
             'name': {'required': True}
         }
     
     def create(self, validated_data):
-        return super().create(validated_data)
+        # Extract the 'json' field from the validated data
+        json_data = validated_data.get('json')
+        # Extract the 'project' field from the validated data
+        project = validated_data.get('project')
+        # Process the JSON data
+        processed_data = process_file_info(json_data)
+        # Create a new instance of your model with the processed data
+        instance = Entrys.objects.create(json=processed_data, project=project)
+        return instance
 
+class ProjectSerializer(serializers.ModelSerializer):
+    entries = EntrysSerializer(many=True, read_only=True)
+    class Meta:
+        model = Project
+        fields = '__all__'
+        extra_kwargs = {
+            'name': {'required': True}
+        }
+
+    def create(self, validated_data):
+        # Remover 'entries' del validated_data antes de crear el proyecto
+        validated_data.pop('entries', None)
+        return super().create(validated_data)
 
